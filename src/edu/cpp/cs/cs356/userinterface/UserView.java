@@ -11,9 +11,14 @@ import javax.swing.JPanel;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
 
+import edu.cpp.cs.cs356.assignment2.Service;
+import edu.cpp.cs.cs356.observers.User;
+
 public class UserView extends JFrame {
 
 	private List<JComponent> elements;
+	private Service service;
+	private User user;
 	
 	private JPanel userPanel;
 	private JTextField userID;
@@ -23,12 +28,16 @@ public class UserView extends JFrame {
 	private JButton postTweetBtn;
 	private JList newsFeed;
 	
-	public UserView() {
+	public UserView(Service service, User user) {
 		super("User View");
+		
+		this.user = user;
 		elements = new ArrayList<>();
+		this.service = service;
 		
 		setSize(500,400);
 		setResizable(true);
+		setLocationRelativeTo(null);
 		
 		userPanel = new JPanel();
 		userID = new JTextField("User ID", 10);
@@ -47,6 +56,8 @@ public class UserView extends JFrame {
 	}
 	
 	public void display() {
+		setTitle(user.getID() + " User View");
+		
 		for (JComponent ele : elements) {
 			userPanel.add(ele);
 		}
