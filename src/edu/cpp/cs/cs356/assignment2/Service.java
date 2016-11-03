@@ -22,6 +22,13 @@ public class Service {
 		totalPosMes = 0;
 	}
 	
+	public void addUser(User user) {
+		users.add(user);
+	}
+	
+	public List<User> getUsers() {
+		return users;
+	}
 	public int getTotalUsers() {
 		return totalUsers;
 	}

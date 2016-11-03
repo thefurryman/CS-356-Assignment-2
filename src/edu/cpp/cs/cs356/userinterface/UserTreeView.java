@@ -3,15 +3,18 @@ package edu.cpp.cs.cs356.userinterface;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
+import javax.swing.ImageIcon;
 import javax.swing.JPanel;
 import javax.swing.JTree;
 import javax.swing.event.TreeSelectionEvent;
 import javax.swing.event.TreeSelectionListener;
 import javax.swing.tree.DefaultMutableTreeNode;
+import javax.swing.tree.DefaultTreeCellRenderer;
 import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.TreeSelectionModel;
 
 import edu.cpp.cs.cs356.assignment2.Service;
+import edu.cpp.cs.cs356.observers.User;
 
 public class UserTreeView {
 	
@@ -19,19 +22,16 @@ public class UserTreeView {
 	private JTree userTree;
 	private DefaultMutableTreeNode root;
 	private DefaultMutableTreeNode lastSelected;
-	private Service service;
 	
-	public UserTreeView(Service service) {
+	public UserTreeView() {
 		super();
 		
 		root = new DefaultMutableTreeNode("Root");
+		lastSelected = root;
 		userTree = new JTree(root);
 		
 		setSelectionListener();
-		
-		this.service = service;
-		
-		//userTree.setShowsRootHandles(true);
+		userTree.setShowsRootHandles(true);
 		panel.add(userTree);
 	}
 	public DefaultMutableTreeNode getRoot() {
@@ -42,7 +42,14 @@ public class UserTreeView {
 		return panel;
 	}
 	
-	public void setSelectionListener() {
+	private void setTreeLeafIcon() {
+		ImageIcon icon = new ImageIcon(UserTreeView.class.getResource("circle-512.jpg"));
+		DefaultTreeCellRenderer rend = new DefaultTreeCellRenderer();
+		rend.setLeafIcon(icon);
+		userTree.setCellRenderer(rend);
+	}
+	
+	private void setSelectionListener() {
 		userTree.getSelectionModel().setSelectionMode(TreeSelectionModel.SINGLE_TREE_SELECTION);
 		userTree.addTreeSelectionListener(new TreeSelectionListener() {
 			
@@ -64,23 +71,37 @@ public class UserTreeView {
 	}
 	
 	public void addGroup(DefaultMutableTreeNode parent, String groupName) {
-		DefaultMutableTreeNode node = new DefaultMutableTreeNode("*" + groupName);
-		checkIfGroup(parent);
-		parent.add(node);
-		reloadTree();
+		if (!checkIfEmpty(groupName)) {
+			DefaultMutableTreeNode node = new DefaultMutableTreeNode("*" + groupName);
+			checkIfGroup(parent);
+			parent.add(node);
+			reloadTree();
+		}
+		
+	}
+	public void addUser(DefaultMutableTreeNode parent, User user) {
+		if (!checkIfEmpty(user.getID())) {
+			DefaultMutableTreeNode node = new DefaultMutableTreeNode(user);
+			checkIfGroup(parent);
+			parent.add(node);
+			reloadTree();
+		}
 	}
 	
-	public void addUser(DefaultMutableTreeNode parent, String userName) {
-		DefaultMutableTreeNode node = new DefaultMutableTreeNode(userName);
-		checkIfGroup(parent);
-		parent.add(node);
-		reloadTree();
-	}
+//	public void addUser(DefaultMutableTreeNode parent, String userName) {
+//		if (!checkIfEmpty(userName)) {
+//			DefaultMutableTreeNode node = new DefaultMutableTreeNode(userName);
+//			checkIfGroup(parent);
+//			parent.add(node);
+//			reloadTree();
+//		}
+//	}
 	
 	private void reloadTree() {
 		DefaultTreeModel model = (DefaultTreeModel) userTree.getModel();
 		model.reload();
 	}
+
 	public JTree getTree() {
 		return userTree;
 	}
@@ -91,5 +112,12 @@ public class UserTreeView {
 			sb.deleteCharAt(0);
 			parent.setUserObject(sb.toString());
 		}
+	}
+	
+	private boolean checkIfEmpty(String text) {
+		if (text.toCharArray()[0] == 0) {
+			return true;
+		}
+		return false;
 	}
 }

@@ -1,8 +1,19 @@
 package edu.cpp.cs.cs356.observers;
 
-public interface Visitable {
+import java.util.ArrayList;
+import java.util.List;
 
-	public void accept(Visitor visitor);
-	public void notifyVisitors();
-	//public void remove(Visitor visitor);
+public abstract class Visitable {
+	//subject breaking news, gamescore
+	
+	private List<Visitor> visitors = new ArrayList<Visitor>();
+	
+	public void accept(Visitor visitor) {
+		visitors.add(visitor);
+	}
+	public void notifyVisitors() {
+		for (Visitor vis : visitors) {
+			vis.update(this);
+		}
+	}
 }

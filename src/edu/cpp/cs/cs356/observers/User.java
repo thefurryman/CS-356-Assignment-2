@@ -3,18 +3,22 @@ package edu.cpp.cs.cs356.observers;
 import java.util.ArrayList;
 import java.util.List;
 
-public class User implements Visitable, Visitor {
+public class User extends Visitable implements Visitor {
 
 	private String userID;
 	private int numFollowers;
 	private String tweet;
 	private List<Visitor> followers;
+	private List<Visitor> following;
+	private List<String> newsFeed;
 	private int totalMessages;
 	private int totalPositiveMes;
 
 	public User(String userID) {
 		this.userID = userID;
 		followers = new ArrayList<>();
+		following = new ArrayList<>();
+		newsFeed = new ArrayList<>();
 		numFollowers = 0;
 		totalMessages = 0;
 		totalPositiveMes = 0;
@@ -31,6 +35,13 @@ public class User implements Visitable, Visitor {
 		for (Visitor vis : followers) {
 			vis.update(this);
 		}
+	}
+	public void addFollowing(Visitor vis) {
+		following.add(vis);
+	}
+	
+	public List<Visitor> getFollowing() {
+		return following;
 	}
 	
 	public String getTweet() {
@@ -50,21 +61,35 @@ public class User implements Visitable, Visitor {
 				break;
 			}
 		}
-		update(this);
+		notifyVisitors();
+		//update(this);
 	}
 	
+	@Override
 	public String getID() {
 		return userID;
 	}
-
-	@Override
-	public void visit(User user) {
-		// TODO Auto-generated method stub
+	
+	public List<Visitor> getFollowers() {
+		return followers;
 	}
 
 	@Override
-	public void update(User user) {
-		user.getTweet();
-		//send to ListView
+	public void update(Visitable vis) {
+		if (vis instanceof User) {
+			displayTweet(((User) vis).getTweet());
+		}
+	}
+	
+	public void displayTweet(String tweet) {
+		newsFeed.add(tweet);
+	}
+	
+	public List<String> getNewsFeed() {
+		return newsFeed;
+	}
+	
+	public String toString() {
+		return userID;
 	}
 }

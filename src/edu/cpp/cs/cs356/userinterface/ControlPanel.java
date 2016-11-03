@@ -12,6 +12,7 @@ import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
+import javax.swing.JScrollPane;
 import javax.swing.JTextField;
 import javax.swing.JTree;
 import javax.swing.tree.DefaultMutableTreeNode;
@@ -41,12 +42,15 @@ public class ControlPanel extends JFrame  {
 	
 	private UserTreeView userTree;
 	
+	private List<JComponent> components;
+	
 	private ControlPanel() {
 		super("Admin Control Panel");
 		
+		components = new ArrayList<>();
 		service = new Service();
 		
-		setSize(500,400);
+		setSize(550,400);
 		setResizable(true);
 		setDefaultCloseOperation(EXIT_ON_CLOSE);
 		setLocationRelativeTo(null);
@@ -76,8 +80,14 @@ public class ControlPanel extends JFrame  {
 	}
 	
 	private void setUserTree() {
-		userTree = new UserTreeView(service);
-		window.add(userTree.getPanel());
+		userTree = new UserTreeView();
+		//JScrollPane pane = new JScrollPane(userTree.getPanel());
+		//components.add(pane);
+		components.add(userTree.getPanel());
+	}
+	
+	protected UserTreeView getTree() {
+		return userTree;
 	}
 	
 	private void setTestTree() {
@@ -109,15 +119,20 @@ public class ControlPanel extends JFrame  {
 		node.add(dog);
 		return dog;
 	}
+	
 	private void setAddUserBtn() { //SET THIS
 		addUserBtn = new JButton("Add User");
 		addUserBtn.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				userTree.addUser(userTree.getLastSelected(), userID.getText()); //
+				User user = new User(userID.getText());
+				userTree.addUser(userTree.getLastSelected(), user);
+				//userTree.addUser(userTree.getLastSelected(), userID.getText()); //
 				service.setTotalUsers(service.getTotalUsers() + 1);
+				service.addUser(user);
+				userID.setText("");
 			}
 		});
-		window.add(addUserBtn);
+		components.add(addUserBtn);
 	}
 	
 	private void setAddGroupBtn() { //SET THIS
@@ -125,33 +140,39 @@ public class ControlPanel extends JFrame  {
 		addGroupBtn.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				userTree.addGroup(userTree.getLastSelected(), groupID.getText());;
-				//System.out.println(userTree.getLastSelected().getUserObject().toString());
 				service.setTotalGroups(service.getTotalGroups() + 1);
+				groupID.setText("");
 			}
 		});
-		window.add(addGroupBtn);
+		components.add(addGroupBtn);
 	}
 	
 	private void setGroupIDField() {
 		groupID = new JTextField("Enter Group ID", 10);
-		window.add(groupID);
+		components.add(groupID);
 	}
 	
 	private void setUserIDField() {
 		userID = new JTextField("Enter User ID", 10);
-		window.add(userID);
+		components.add(userID);
 	}
 	
 	private void setOpenUserBtn() {
 		openUserBtn = new JButton("Open User View");
 		openUserBtn.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				UserView uView = new UserView(service, new User("TEMP"));
+				//
+				User user = (User) userTree.getLastSelected().getUserObject();
+				System.out.println(user.getID());
+				UserView uView = new UserView(service, userTree.getRoot(),  user);
+				//
+				//UserView uView = new UserView(service, new User("TEMP"));
 				uView.display();
 			}
 		});
-		//get the node of the user and placei nparameter
-		window.add(openUserBtn);
+		//get the node of the user and place in parameter
+		//window.add(openUserBtn);
+		components.add(openUserBtn);
 	}
 
 	private void setUserTotalBtn() {
@@ -161,7 +182,7 @@ public class ControlPanel extends JFrame  {
 				new PopupLabel(service.getTotalUsers());
 			}
 		});
-		window.add(showUserTotalBtn);
+		components.add(showUserTotalBtn);
 	}
 	
 	private void setGroupTotalBtn() {
@@ -171,7 +192,7 @@ public class ControlPanel extends JFrame  {
 				new PopupLabel(service.getTotalGroups());
 			}
 		});
-		window.add(showGroupTotalBtn);
+		components.add(showGroupTotalBtn);
 	}
 	
 	private void setMessagesTotalBtn() {
@@ -181,7 +202,7 @@ public class ControlPanel extends JFrame  {
 				new PopupLabel(service.getTotalMessages());
 			}
 		});
-		window.add(showMessagesTotalBtn);
+		components.add(showMessagesTotalBtn);
 	}
 	
 	private void setPositivePercBtn() {
@@ -197,15 +218,13 @@ public class ControlPanel extends JFrame  {
 				new PopupLabel(perc);
 			}
 		});
-		window.add(showPositivePercentageBtn);
+		components.add(showPositivePercentageBtn);
 	}
 
 	public void display() {
-//		window.setLayout(new GridLayout(2,2));
-//		window.add(treeView, BorderLayout.PAGE_START);
-//		window.add(userID, BorderLayout.; //FIX WINDOW LAYOUT!!!!!!
-//		window.add(addUserBtn, BorderLayout.PAGE_START);
-
+		for (JComponent comp : components) {
+			window.add(comp);
+		}
 		add(window);
 		setVisible(true);
 	}
