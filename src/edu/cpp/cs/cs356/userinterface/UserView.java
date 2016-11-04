@@ -145,6 +145,7 @@ public class UserView extends JFrame {
 				}
 			}
 		} 
+		
 		return tempUser;
 	}
 	

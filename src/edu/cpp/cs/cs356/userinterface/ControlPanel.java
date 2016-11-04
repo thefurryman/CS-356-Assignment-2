@@ -5,6 +5,7 @@ import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import javax.swing.AbstractButton;
@@ -18,8 +19,15 @@ import javax.swing.JTree;
 import javax.swing.tree.DefaultMutableTreeNode;
 
 import edu.cpp.cs.cs356.assignment2.Service;
+import edu.cpp.cs.cs356.observers.Group;
+import edu.cpp.cs.cs356.observers.TreeElement;
 import edu.cpp.cs.cs356.observers.User;
 
+/**
+ * 
+ * The entry point to the program and is a singleton
+ *
+ */
 public class ControlPanel extends JFrame  {
 
 	private static ControlPanel INSTANCE;
@@ -27,7 +35,6 @@ public class ControlPanel extends JFrame  {
 	
 	private JPanel window = new JPanel();
 	
-	private JTree treeView;
 	private JTextField userID;
 	private JButton addUserBtn;
 
@@ -55,8 +62,7 @@ public class ControlPanel extends JFrame  {
 		setDefaultCloseOperation(EXIT_ON_CLOSE);
 		setLocationRelativeTo(null);
 		
-		setUserTree(); //original
-		//setTestTree(); //test
+		setUserTree();
 		
 		setUserIDField();		
 		setAddUserBtn();
@@ -89,59 +95,37 @@ public class ControlPanel extends JFrame  {
 	protected UserTreeView getTree() {
 		return userTree;
 	}
-	
-	private void setTestTree() {
-		DefaultMutableTreeNode root = new DefaultMutableTreeNode("root");
-		yes(root);
-		yes(yes(root));
-		DefaultMutableTreeNode sub1 = new DefaultMutableTreeNode("dog");
-		root.add(sub1);
-//		root.add(sub1);
-//		sub1.add(new DefaultMutableTreeNode("retriever"));
-		DefaultMutableTreeNode sub2 = new DefaultMutableTreeNode("cat");
-		sub1.add(sub2);
-		DefaultMutableTreeNode sub3 = new DefaultMutableTreeNode("fish");
-		root.add(sub3);
-
-//		sub1.add(sub2);
-//		sub2.add(new DefaultMutableTreeNode("golden"));
-		//root.add(sub1);
-		//root.add(sub2);
 		
-		//System.out.println(sub1.getUserObject());
-		
-		treeView = new JTree(root); 
-		window.add(treeView);
-	}
-	
-	private DefaultMutableTreeNode yes(DefaultMutableTreeNode node) {
-		DefaultMutableTreeNode dog = new DefaultMutableTreeNode("yes");
-		node.add(dog);
-		return dog;
-	}
-	
-	private void setAddUserBtn() { //SET THIS
+	private void setAddUserBtn() {
 		addUserBtn = new JButton("Add User");
 		addUserBtn.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				User user = new User(userID.getText());
-				userTree.addUser(userTree.getLastSelected(), user);
-				//userTree.addUser(userTree.getLastSelected(), userID.getText()); //
-				service.setTotalUsers(service.getTotalUsers() + 1);
-				service.addUser(user);
-				userID.setText("");
+				if ((TreeElement) userTree.getLastSelected().getUserObject() instanceof Group) {
+					User user = new User(userID.getText());
+					userTree.addUser(userTree.getLastSelected(), user);
+					service.setTotalUsers(service.getTotalUsers() + 1);
+					service.addUser(user);
+					userID.setText("");
+				} else {
+					new PopupLabel("Select a group/directory to add a user to");
+				}
 			}
 		});
 		components.add(addUserBtn);
 	}
 	
-	private void setAddGroupBtn() { //SET THIS
+	private void setAddGroupBtn() {
 		addGroupBtn = new JButton("Add Group");
 		addGroupBtn.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				userTree.addGroup(userTree.getLastSelected(), groupID.getText());;
-				service.setTotalGroups(service.getTotalGroups() + 1);
-				groupID.setText("");
+				if ((TreeElement) userTree.getLastSelected().getUserObject() instanceof Group) {
+					TreeElement group = new Group("*" + groupID.getText());
+					userTree.addGroup(userTree.getLastSelected(), group);
+					service.setTotalGroups(service.getTotalGroups() + 1);
+					groupID.setText("");
+				} else {
+					new PopupLabel("Select a group to add a group, not a user");
+				}
 			}
 		});
 		components.add(addGroupBtn);
@@ -157,70 +141,164 @@ public class ControlPanel extends JFrame  {
 		components.add(userID);
 	}
 	
+	/**
+	 * this Button will open the User View for the selected user node.
+	 * If a group is selected, will open an error popup window.
+	 */
 	private void setOpenUserBtn() {
 		openUserBtn = new JButton("Open User View");
 		openUserBtn.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				//
-				User user = (User) userTree.getLastSelected().getUserObject();
-				System.out.println(user.getID());
-				UserView uView = new UserView(service, userTree.getRoot(),  user);
-				//
-				//UserView uView = new UserView(service, new User("TEMP"));
-				uView.display();
+				if ((TreeElement) userTree.getLastSelected().getUserObject() instanceof User) {
+					User user = (User) userTree.getLastSelected().getUserObject();
+					UserView uView = new UserView(service, userTree.getRoot(),  user);
+					uView.display();
+				} else {
+					new PopupLabel("Group selected! Click on a user instead");
+				}
 			}
 		});
-		//get the node of the user and place in parameter
-		//window.add(openUserBtn);
 		components.add(openUserBtn);
 	}
 
+	/**
+	 * Same as below for setGroupTotalBtn(). If selected node is a User, 
+	 * displays 1 in a small window.
+	 */
 	private void setUserTotalBtn() {
 		showUserTotalBtn = new JButton("Show User Total");
 		showUserTotalBtn.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				new PopupLabel(service.getTotalUsers());
+				DefaultMutableTreeNode node = userTree.getLastSelected();
+				if ((TreeElement) node.getUserObject() instanceof Group) {
+					List<DefaultMutableTreeNode> list = Collections.list(node.depthFirstEnumeration());
+					int numUsers = 0;
+					
+					for (int i = 0; i < list.size(); i++) {
+						if (list.get(i).getUserObject() instanceof User) {
+							numUsers++;
+						}
+					}
+					new PopupLabel(numUsers);
+				} else if (node.getUserObject() instanceof User) {
+					new PopupLabel(1);
+				} else {
+					new PopupLabel("error");
+				}
 			}
 		});
 		components.add(showUserTotalBtn);
 	}
 	
+	/*
+	 * If selected node is a group, will calculate total of all groups inside of the 
+	 * group INCLUDING ITSELF. So a clean user tree from a clean program will display 
+	 * group total = 1 if Root is selected. If a user is selected, returns 0.
+	 */
 	private void setGroupTotalBtn() {
 		showGroupTotalBtn = new JButton("Show Group Total");
 		showGroupTotalBtn.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				new PopupLabel(service.getTotalGroups());
+				DefaultMutableTreeNode node = userTree.getLastSelected();
+				if ((TreeElement) node.getUserObject() instanceof Group) {
+					List<DefaultMutableTreeNode> list = Collections.list(node.depthFirstEnumeration());
+					int numGroups = 0;
+					for (int i = 0; i < list.size(); i++) {
+						if (list.get(i).getUserObject() instanceof Group) {
+							numGroups++;
+						}
+					}
+					new PopupLabel(numGroups);
+				} else if (node.getUserObject() instanceof User) {
+					new PopupLabel(0);
+				} else {
+					new PopupLabel("error");
+				}
 			}
 		});
 		components.add(showGroupTotalBtn);
 	}
 	
+	/**
+	 * Same as setPositivePercBtn() below, but just for seeing total messages in a group or
+	 * from a user
+	 */
 	private void setMessagesTotalBtn() {
 		showMessagesTotalBtn = new JButton("Show Messages Total");
 		showMessagesTotalBtn.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				new PopupLabel(service.getTotalMessages());
+				DefaultMutableTreeNode node = userTree.getLastSelected();
+				if ((TreeElement) node.getUserObject() instanceof User) {
+					User user = (User) node.getUserObject();
+					new PopupLabel(user.getTotalMessages());
+				} else if ((TreeElement) node.getUserObject() instanceof Group) {
+					List<DefaultMutableTreeNode> list = Collections.list(node.depthFirstEnumeration());
+					int totalMes = 0;
+					User temp;
+					for (int i = 0; i < list.size(); i++) {
+						if (list.get(i).getUserObject() instanceof User) {
+							temp = (User) list.get(i).getUserObject();
+							totalMes += temp.getTotalMessages();
+						}
+					} 
+					new PopupLabel(totalMes);
+				} else {
+					new PopupLabel("error");
+				}
 			}
 		});
 		components.add(showMessagesTotalBtn);
 	}
 	
+	/**
+	 * Starting at the last selected node (user/group), will determine if it is a user or group
+	 *  and adjust percentage accordingly. Performs DFS on a group node and will calculate positive
+	 *  percentage on all users nodes and open a small window to display it. If selected node is a user,
+	 *  then will open small window with just that user's positive percentage
+	 */
 	private void setPositivePercBtn() {
 		showPositivePercentageBtn = new JButton("Show Positive Percentage");
 		showPositivePercentageBtn.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				double perc = 0;
-				if (service.getTotalMessages() == 0) {
-	
+				DefaultMutableTreeNode node = userTree.getLastSelected();
+				if ((TreeElement) node.getUserObject() instanceof User) {
+					User user = (User) node.getUserObject();
+					if (user.getTotalMessages() != 0) {
+						double posPerc = (double) user.getTotalPositiveMessages() / user.getTotalMessages();
+						new PopupLabel(posPerc);
+					} else {
+						new PopupLabel(0.0);
+					}
+				} else if ((TreeElement) node.getUserObject() instanceof Group) {
+					List<DefaultMutableTreeNode> list = Collections.list(node.depthFirstEnumeration());
+					int totalMes = 0;
+					int totalPosMes = 0;
+					User temp;
+					for (int i = 0; i < list.size(); i++) {
+						if ((TreeElement) list.get(i).getUserObject() instanceof User) {
+							temp = (User) list.get(i).getUserObject();
+							totalMes += temp.getTotalMessages();
+							totalPosMes += temp.getTotalPositiveMessages();
+						}
+					}
+					if (totalPosMes != 0) {
+						double posPerc = (double) totalPosMes / totalMes;
+						new PopupLabel(posPerc);
+					} else {
+						new PopupLabel(0.0);
+					}
 				} else {
-					perc = ( service.getTotalPosMes() / service.getTotalMessages() );
+					new PopupLabel("error");
 				}
-				new PopupLabel(perc);
 			}
 		});
 		components.add(showPositivePercentageBtn);
 	}
-
+	
+	/**
+	 * from the list of all JComponents, will add them to the JPanel and 
+	 * finall add the JPanel to the frame to display on screen.
+	 */
 	public void display() {
 		for (JComponent comp : components) {
 			window.add(comp);
@@ -228,5 +306,4 @@ public class ControlPanel extends JFrame  {
 		add(window);
 		setVisible(true);
 	}
-	
 }

@@ -8,6 +8,12 @@ import javax.swing.JPanel;
 import edu.cpp.cs.cs356.observers.User;
 import edu.cpp.cs.cs356.observers.Visitor;
 
+/**
+ * 
+ * @author tofum
+ * This class is List on the UserView panel that displays the users
+ * that a specific user is following.
+ */
 public class ListFollowing {
 
 	private JPanel panel;
@@ -44,6 +50,10 @@ public class ListFollowing {
 		return panel;
 	}
 	
+	/**
+	 * Whenever the UserView panel is opened, this will immediately
+	 * get all the users that a user is following and display them.
+	 */
 	private void insertUsers() {
 		for(Visitor us : user.getFollowing()) {
 				listModel.addElement(us.getID());

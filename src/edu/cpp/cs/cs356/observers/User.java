@@ -3,7 +3,15 @@ package edu.cpp.cs.cs356.observers;
 import java.util.ArrayList;
 import java.util.List;
 
-public class User extends Visitable implements Visitor {
+/**
+ * 
+ * @author tofum
+ * User class that contains various attributes of a user such as:
+ * its followers, who its following, total messages, total positive messages,
+ * its newsFeed, and of course its userID. The User is both a Subject and
+ * Observer.
+ */
+public class User extends Visitable implements Visitor, TreeElement {
 
 	private String userID;
 	private int numFollowers;
@@ -62,7 +70,14 @@ public class User extends Visitable implements Visitor {
 			}
 		}
 		notifyVisitors();
-		//update(this);
+	}
+	
+	public int getTotalPositiveMessages() {
+		return totalPositiveMes;
+	}
+	
+	public int getTotalMessages() {
+		return totalMessages;
 	}
 	
 	@Override

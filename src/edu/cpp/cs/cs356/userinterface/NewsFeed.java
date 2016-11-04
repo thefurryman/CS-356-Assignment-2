@@ -7,6 +7,12 @@ import javax.swing.JPanel;
 import edu.cpp.cs.cs356.observers.User;
 import edu.cpp.cs.cs356.observers.Visitor;
 
+/**
+ * 
+ * This is the news feed panel of the UserView where it
+ * will display updates from users that the user is following.
+ *
+ */
 public class NewsFeed {
 
 	private JPanel panel;
@@ -38,6 +44,11 @@ public class NewsFeed {
 		return panel;
 	}
 	
+	/**
+	 * Whenever the UserView is opened, this will populate the
+	 * NewsFeed with updates from users that the specific user is following
+	 * if available.
+	 */
 	private void insertFeed() {
 		for (int i = user.getNewsFeed().size() - 1; i >= 0; i--) {
 			listModel.addElement(user.getNewsFeed().get(i));
