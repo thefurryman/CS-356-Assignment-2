@@ -29,24 +29,17 @@ public class ControlPanel extends JFrame  {
 
 	private static ControlPanel INSTANCE;
 	private Service service;
-	
 	private JPanel window;
-	
 	private JTextField userID;
 	private JButton addUserBtn;
-
 	private JTextField groupID;
 	private JButton addGroupBtn;
-	
 	private JButton openUserBtn;
-	
 	private JButton showUserTotalBtn;
 	private JButton showGroupTotalBtn;
 	private JButton showMessagesTotalBtn;
 	private JButton showPositivePercentageBtn;
-	
 	private UserTreeView userTree;
-	
 	private List<JComponent> components;
 	
 	private ControlPanel() {
@@ -55,20 +48,18 @@ public class ControlPanel extends JFrame  {
 		
 		components = new ArrayList<>();
 		service = new Service();
+		
 		setSize(550,400);
 		setResizable(true);
 		setDefaultCloseOperation(EXIT_ON_CLOSE);
 		setLocationRelativeTo(null);
+		
 		setUserTree();
-
 		setUserIDField();		
 		setAddUserBtn();
-
 		setGroupIDField();
 		setAddGroupBtn();
-		
 		setOpenUserBtn();
-		
 		setUserTotalBtn();
 		setGroupTotalBtn();
 		setMessagesTotalBtn();

@@ -1,12 +1,10 @@
 package edu.cpp.cs.cs356.userinterface;
 
-import javax.swing.ImageIcon;
 import javax.swing.JPanel;
 import javax.swing.JTree;
 import javax.swing.event.TreeSelectionEvent;
 import javax.swing.event.TreeSelectionListener;
 import javax.swing.tree.DefaultMutableTreeNode;
-import javax.swing.tree.DefaultTreeCellRenderer;
 import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.TreeSelectionModel;
 
@@ -34,7 +32,6 @@ public class UserTreeView {
 		DefaultMutableTreeNode setRoot = new DefaultMutableTreeNode();
 		setRoot.setUserObject(new Group("Root"));
 		root = setRoot;
-		//root = new DefaultMutableTreeNode("Root");
 		lastSelected = root;
 		userTree = new JTree(root);
 		
@@ -76,7 +73,7 @@ public class UserTreeView {
 	}
 	
 	/**
-	 * Sort of DEPRICATED, used in earlier versions for easier testing before
+	 * DEPRICATED. Used in earlier versions for easier testing before
 	 * using User/Group objects in the node.
 	 * @param parent
 	 * @param groupName
@@ -92,7 +89,8 @@ public class UserTreeView {
 	
 	/**
 	 * The "*" denotes it is a new group created with no children yet. Once
-	 * a child has been added, the "*" will be removed automatically.
+	 * a child has been added, the "*" will be removed automatically. Adds 
+	 * group to the tree.
 	 * @param parent
 	 * @param groupName
 	 */
@@ -120,11 +118,11 @@ public class UserTreeView {
 	}
 	
 	/**
-	 * Depricated as well, used for easy earlier testings.
+	 * Depricated, used for easy earlier testings.
 	 * @param parent
 	 * @param userName
 	 */
-	public void addUser1(DefaultMutableTreeNode parent, String userName) {
+	public void addUser(DefaultMutableTreeNode parent, String userName) {
 		if (!checkIfEmpty(userName)) {
 			DefaultMutableTreeNode node = new DefaultMutableTreeNode(userName);
 			checkIfGroup(parent);
@@ -163,7 +161,7 @@ public class UserTreeView {
 	}
 	
 	/**
-	 * Checks if the input from the textbox was empty
+	 * Checks if the Object's name is empty
 	 * @param text
 	 * @return
 	 */

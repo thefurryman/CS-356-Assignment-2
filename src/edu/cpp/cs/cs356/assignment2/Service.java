@@ -6,6 +6,11 @@ import java.util.List;
 import edu.cpp.cs.cs356.observers.User;
 import edu.cpp.cs.cs356.userinterface.ControlPanel;
 
+/**
+ * 
+ * @author tofum
+ * Simply keeps track of various things.
+ */
 public class Service {
 
 	private List<User> users;
@@ -60,5 +65,4 @@ public class Service {
 	public void setTotalPosMes(int totalPosMes) {
 		this.totalPosMes = totalPosMes;
 	}
-
 }

@@ -28,13 +28,11 @@ public class UserView extends JFrame {
 	private Service service;
 	private User user;
 	private DefaultMutableTreeNode root;
-	
 	private JPanel userPanel;
 	private JTextField userID;
 	private JButton followUserBtn;
 	private JTextArea messageArea;
 	private JButton postTweetBtn;
-
 	private ListFollowing curFollowing;
 	private NewsFeed newsFeed;
 	
@@ -67,6 +65,7 @@ public class UserView extends JFrame {
 	public void refreshNews() {
 		newsFeed.insertFeed();
 	}
+	
 	/** Initialize TextArea to input a tweet element */
 	private void setMessageArea() {
 		messageArea = new JTextArea("Enter a message", 4, 10);

@@ -19,10 +19,9 @@ public class ListFollowing {
 	private JPanel panel;
 	private JList list;
 	private DefaultListModel<String> listModel;
-	
 	private User user;
 	
-	public ListFollowing(User user) {
+	protected ListFollowing(User user) {
 		panel = new JPanel();
 		this.user = user;
 		

@@ -7,7 +7,7 @@ import javax.swing.JPanel;
 /**
  * 
  * An auxiliary display class that is easy to call
- * for a popup window to display things. Usually
+ * for a popup window to display text. Usually
  * error messages and statistic values such as
  * total messages and such.
  *

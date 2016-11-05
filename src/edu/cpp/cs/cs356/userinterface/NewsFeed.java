@@ -17,7 +17,6 @@ public class NewsFeed {
 	private JPanel panel;
 	private JList list;
 	private DefaultListModel<String> listModel;
-	private int size;
 	private User user;
 	
 	public NewsFeed(User user) {
@@ -35,6 +34,9 @@ public class NewsFeed {
 		panel.add(list);
 	}
 	
+	/** Called by the User class to force update a live UserView Window when
+	 *  a new Tweet is posted. This is for automatic window refresh.
+	 */
 	public void update() {
 		listModel.removeAllElements();
 		listModel.addElement("------ News Feed -------");
@@ -54,7 +56,7 @@ public class NewsFeed {
 	 * NewsFeed with updates from users that the specific user is following
 	 * if available.
 	 */
-	public void insertFeed() {
+	protected void insertFeed() {
 		for (int i = user.getNewsFeed().size() - 1; i >= 0; i--) {
 			listModel.addElement(user.getNewsFeed().get(i));
 		}

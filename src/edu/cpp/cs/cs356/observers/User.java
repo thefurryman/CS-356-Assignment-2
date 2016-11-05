@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import edu.cpp.cs.cs356.userinterface.NewsFeed;
-import edu.cpp.cs.cs356.userinterface.UserView;
 
 /**
  * 
@@ -17,7 +16,6 @@ import edu.cpp.cs.cs356.userinterface.UserView;
 public class User extends Visitable implements Visitor, TreeElement {
 
 	private String userID;
-	private int numFollowers;
 	private String tweet;
 	private List<Visitor> followers;
 	private List<Visitor> following;
@@ -31,7 +29,6 @@ public class User extends Visitable implements Visitor, TreeElement {
 		followers = new ArrayList<>();
 		following = new ArrayList<>();
 		newsFeed = new ArrayList<>();
-		numFollowers = 0;
 		totalMessages = 0;
 		totalPositiveMes = 0;
 	}
@@ -47,7 +44,6 @@ public class User extends Visitable implements Visitor, TreeElement {
 	@Override
 	public void accept(Visitor visitor) {
 		followers.add(visitor);
-		numFollowers++;
 	}
 
 	@Override
