@@ -1,21 +1,16 @@
 package edu.cpp.cs.cs356.userinterface;
 
-import java.awt.BorderLayout;
-import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import javax.swing.AbstractButton;
 import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
-import javax.swing.JScrollPane;
 import javax.swing.JTextField;
-import javax.swing.JTree;
 import javax.swing.tree.DefaultMutableTreeNode;
 
 import edu.cpp.cs.cs356.assignment2.Service;
@@ -25,7 +20,9 @@ import edu.cpp.cs.cs356.observers.User;
 
 /**
  * 
- * The entry point to the program and is a singleton
+ * The entry point to the program and is a singleton.
+ * Able to view users and groups, add users, open user profiles, 
+ * add groups, and view statistics of various things.
  *
  */
 public class ControlPanel extends JFrame  {
@@ -33,13 +30,14 @@ public class ControlPanel extends JFrame  {
 	private static ControlPanel INSTANCE;
 	private Service service;
 	
-	private JPanel window = new JPanel();
+	private JPanel window;
 	
 	private JTextField userID;
 	private JButton addUserBtn;
 
 	private JTextField groupID;
 	private JButton addGroupBtn;
+	
 	private JButton openUserBtn;
 	
 	private JButton showUserTotalBtn;
@@ -53,17 +51,16 @@ public class ControlPanel extends JFrame  {
 	
 	private ControlPanel() {
 		super("Admin Control Panel");
+		window = new JPanel();
 		
 		components = new ArrayList<>();
 		service = new Service();
-		
 		setSize(550,400);
 		setResizable(true);
 		setDefaultCloseOperation(EXIT_ON_CLOSE);
 		setLocationRelativeTo(null);
-		
 		setUserTree();
-		
+
 		setUserIDField();		
 		setAddUserBtn();
 
@@ -87,8 +84,8 @@ public class ControlPanel extends JFrame  {
 	
 	private void setUserTree() {
 		userTree = new UserTreeView();
-		//JScrollPane pane = new JScrollPane(userTree.getPanel());
-		//components.add(pane);
+		userTree.getTree().setLayout(null);
+		userTree.getTree().setLocation(555, 555);		
 		components.add(userTree.getPanel());
 	}
 	
@@ -101,16 +98,28 @@ public class ControlPanel extends JFrame  {
 		addUserBtn.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				if ((TreeElement) userTree.getLastSelected().getUserObject() instanceof Group) {
-					User user = new User(userID.getText());
-					userTree.addUser(userTree.getLastSelected(), user);
-					service.setTotalUsers(service.getTotalUsers() + 1);
-					service.addUser(user);
-					userID.setText("");
+					boolean isDuplicate = false;
+					for (int i = 0; i < service.getUsers().size(); i++) {
+						if (service.getUsers().get(i).getID().equals(userID.getText())) {
+							isDuplicate = true;
+						}
+					}
+					if (!isDuplicate) {
+						User user = new User(userID.getText());
+						
+						userTree.addUser(userTree.getLastSelected(), user);
+						service.setTotalUsers(service.getTotalUsers() + 1);
+						service.addUser(user);
+						userID.setText("");
+					} else {
+						new PopupLabel("Duplicate User");
+					}
 				} else {
 					new PopupLabel("Select a group/directory to add a user to");
 				}
 			}
 		});
+		addUserBtn.setLocation(999, 999);
 		components.add(addUserBtn);
 	}
 	
@@ -179,9 +188,9 @@ public class ControlPanel extends JFrame  {
 							numUsers++;
 						}
 					}
-					new PopupLabel(numUsers);
+					new PopupLabel("Total Users", numUsers);
 				} else if (node.getUserObject() instanceof User) {
-					new PopupLabel(1);
+					new PopupLabel("Total Users", 1);
 				} else {
 					new PopupLabel("error");
 				}
@@ -190,7 +199,7 @@ public class ControlPanel extends JFrame  {
 		components.add(showUserTotalBtn);
 	}
 	
-	/*
+	/**
 	 * If selected node is a group, will calculate total of all groups inside of the 
 	 * group INCLUDING ITSELF. So a clean user tree from a clean program will display 
 	 * group total = 1 if Root is selected. If a user is selected, returns 0.
@@ -208,9 +217,9 @@ public class ControlPanel extends JFrame  {
 							numGroups++;
 						}
 					}
-					new PopupLabel(numGroups);
+					new PopupLabel("Total Groups", numGroups);
 				} else if (node.getUserObject() instanceof User) {
-					new PopupLabel(0);
+					new PopupLabel("Total Groups", 0);
 				} else {
 					new PopupLabel("error");
 				}
@@ -230,7 +239,7 @@ public class ControlPanel extends JFrame  {
 				DefaultMutableTreeNode node = userTree.getLastSelected();
 				if ((TreeElement) node.getUserObject() instanceof User) {
 					User user = (User) node.getUserObject();
-					new PopupLabel(user.getTotalMessages());
+					new PopupLabel("Total Messages", user.getTotalMessages());
 				} else if ((TreeElement) node.getUserObject() instanceof Group) {
 					List<DefaultMutableTreeNode> list = Collections.list(node.depthFirstEnumeration());
 					int totalMes = 0;
@@ -241,7 +250,7 @@ public class ControlPanel extends JFrame  {
 							totalMes += temp.getTotalMessages();
 						}
 					} 
-					new PopupLabel(totalMes);
+					new PopupLabel("Total Messages", totalMes);
 				} else {
 					new PopupLabel("error");
 				}
@@ -265,9 +274,9 @@ public class ControlPanel extends JFrame  {
 					User user = (User) node.getUserObject();
 					if (user.getTotalMessages() != 0) {
 						double posPerc = (double) user.getTotalPositiveMessages() / user.getTotalMessages();
-						new PopupLabel(posPerc);
+						new PopupLabel("Positive Messages Percentage", posPerc);
 					} else {
-						new PopupLabel(0.0);
+						new PopupLabel("Positive Messages Percentage", 0.0);
 					}
 				} else if ((TreeElement) node.getUserObject() instanceof Group) {
 					List<DefaultMutableTreeNode> list = Collections.list(node.depthFirstEnumeration());
@@ -283,9 +292,9 @@ public class ControlPanel extends JFrame  {
 					}
 					if (totalPosMes != 0) {
 						double posPerc = (double) totalPosMes / totalMes;
-						new PopupLabel(posPerc);
+						new PopupLabel("Positive Messages Percentage", posPerc);
 					} else {
-						new PopupLabel(0.0);
+						new PopupLabel("Positive Messages Percentage", 0.0);
 					}
 				} else {
 					new PopupLabel("error");
@@ -297,7 +306,7 @@ public class ControlPanel extends JFrame  {
 	
 	/**
 	 * from the list of all JComponents, will add them to the JPanel and 
-	 * finall add the JPanel to the frame to display on screen.
+	 * finally add the JPanel to the frame to display on screen.
 	 */
 	public void display() {
 		for (JComponent comp : components) {

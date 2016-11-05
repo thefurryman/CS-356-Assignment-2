@@ -4,20 +4,18 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Enumeration;
 import java.util.List;
 
 import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.JFrame;
-import javax.swing.JList;
 import javax.swing.JPanel;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.tree.DefaultMutableTreeNode;
-import javax.swing.tree.TreeNode;
 
 import edu.cpp.cs.cs356.assignment2.Service;
+import edu.cpp.cs.cs356.observers.TreeElement;
 import edu.cpp.cs.cs356.observers.User;
 
 /**
@@ -40,7 +38,7 @@ public class UserView extends JFrame {
 	private ListFollowing curFollowing;
 	private NewsFeed newsFeed;
 	
-	public UserView(Service service, DefaultMutableTreeNode root, User user) {
+	protected UserView(Service service, DefaultMutableTreeNode root, User user) {
 		super("User View");
 		
 		userPanel = new JPanel();
@@ -62,6 +60,13 @@ public class UserView extends JFrame {
 		setNewsFeed();
 	}
 	
+	protected UserView() {
+		
+	}
+	
+	public void refreshNews() {
+		newsFeed.insertFeed();
+	}
 	/** Initialize TextArea to input a tweet element */
 	private void setMessageArea() {
 		messageArea = new JTextArea("Enter a message", 4, 10);
@@ -84,6 +89,7 @@ public class UserView extends JFrame {
 	/** Initialize NewsFeed element */
 	private void setNewsFeed() {
 		newsFeed = new NewsFeed(user);
+		user.setNewsFeed(newsFeed);
 		elements.add(newsFeed.getPanel());
 	}
 	
@@ -95,13 +101,19 @@ public class UserView extends JFrame {
 		followUserBtn = new JButton("Follow User");
 		followUserBtn.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				User userToFollow = findUser(userID.getText());
-				System.out.println(userToFollow + "first");
+				User userToFollow = findUser(root, userID.getText());
 				if (userToFollow != null && !(userToFollow.getID().equals(user.getID()))) {
-					userToFollow.accept(user);
-					user.addFollowing(userToFollow);
-					curFollowing.addUser(userToFollow);
-					System.out.println("added");
+					boolean isDuplicate = false;
+					for (int i = 0; i < user.getFollowing().size(); i++) {
+						if (user.getFollowing().get(i).getID().equals(userToFollow.getID())) {
+							isDuplicate = true;
+						}
+					}
+					if (!isDuplicate) {
+						userToFollow.accept(user);
+						user.addFollowing(userToFollow);
+						curFollowing.addUser(userToFollow);
+					}
 				}
 			}
 		});
@@ -115,6 +127,7 @@ public class UserView extends JFrame {
 			public void actionPerformed(ActionEvent e) {
 				String tweet = messageArea.getText();
 				user.postTweet(user.getID() + " - " + tweet);
+				newsFeed.addTweet(user.getID() + " - " + tweet);
 				messageArea.setText("*Tweet posted");
 			}
 		});
@@ -122,35 +135,32 @@ public class UserView extends JFrame {
 	}
 	
 	/**
-	 * DEPRICATED
-	 * Recursive implementation of finding a User through the tree. Unfortunately would fail if there were groups
-	 * in the tree due type mismatches of String and User
+	 * Finds users by traversing through the tree and examining nodes
 	 */
-	private User findUser(DefaultMutableTreeNode node, String userName) { 
-		User tempUser = null;
-		if  (node.getUserObject().toString().equals(userName)) {
+	protected User findUser(DefaultMutableTreeNode node, String userName) { 
+		User tempUser;
+		if  ((TreeElement) node.getUserObject() instanceof User) {
 			tempUser = (User) node.getUserObject();
-			return tempUser;
-		} else if (node.getChildCount() != 0) {
-			List<DefaultMutableTreeNode> list = Collections.list(node.children());
+			if (tempUser.getID().equals(userName)) {
+				return tempUser;
+			}
+		} else {
+			List<DefaultMutableTreeNode> list = Collections.list(node.depthFirstEnumeration());
 			for (int i = 0; i < list.size(); i++) {
-				System.out.println(findUser((DefaultMutableTreeNode) node.getChildAt(i), userName) + "hello");
-				if (list.get(i).getUserObject() instanceof String) {
-					
-				} else {
+				if ((TreeElement) list.get(i).getUserObject() instanceof User) {
 					tempUser = (User) list.get(i).getUserObject();
 					if (tempUser.getID().equals(userName)) {
 						return tempUser;
 					}
 				}
 			}
-		} 
-		
-		return tempUser;
+		}
+		return null;
 	}
 	
 	/**
-	 * This implementaiton requires that a class in this case Service.class keeps track of added Users
+	 * DEPRICATED
+	 * This implementaiton requires that a class, in this case Service.class, to keep track of added Users
 	 * by a List. This will simply iterate through the list and find the User. 
 	 */
 	private User findUser(String userName) { 
@@ -163,7 +173,7 @@ public class UserView extends JFrame {
 	}
 	
 	/** Called to display all components of this frame */
-	public void display() {
+	protected void display() {
 		setTitle(user.getID() + " - User View");
 		
 		for (JComponent ele : elements) {

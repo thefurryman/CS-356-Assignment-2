@@ -1,8 +1,5 @@
 package edu.cpp.cs.cs356.userinterface;
 
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-
 import javax.swing.ImageIcon;
 import javax.swing.JPanel;
 import javax.swing.JTree;
@@ -13,7 +10,6 @@ import javax.swing.tree.DefaultTreeCellRenderer;
 import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.TreeSelectionModel;
 
-import edu.cpp.cs.cs356.assignment2.Service;
 import edu.cpp.cs.cs356.observers.Group;
 import edu.cpp.cs.cs356.observers.TreeElement;
 import edu.cpp.cs.cs356.observers.User;
@@ -32,11 +28,11 @@ public class UserTreeView {
 	private DefaultMutableTreeNode root;
 	private DefaultMutableTreeNode lastSelected;
 	
-	public UserTreeView() {
+	protected UserTreeView() {
 		super();
 		
 		DefaultMutableTreeNode setRoot = new DefaultMutableTreeNode();
-		setRoot.setUserObject(new Group("GRoot"));
+		setRoot.setUserObject(new Group("Root"));
 		root = setRoot;
 		//root = new DefaultMutableTreeNode("Root");
 		lastSelected = root;
@@ -47,19 +43,12 @@ public class UserTreeView {
 		panel.add(userTree);
 	}
 	
-	public DefaultMutableTreeNode getRoot() {
+	protected DefaultMutableTreeNode getRoot() {
 		return root;
 	}
 	
-	public JPanel getPanel() {
+	protected JPanel getPanel() {
 		return panel;
-	}
-	
-	private void setTreeLeafIcon() {
-		ImageIcon icon = new ImageIcon(UserTreeView.class.getResource("circle-512.jpg"));
-		DefaultTreeCellRenderer rend = new DefaultTreeCellRenderer();
-		rend.setLeafIcon(icon);
-		userTree.setCellRenderer(rend);
 	}
 	
 	/**
@@ -82,7 +71,7 @@ public class UserTreeView {
 		});
 	}
 	
-	public DefaultMutableTreeNode getLastSelected() {
+	protected DefaultMutableTreeNode getLastSelected() {
 		return lastSelected;
 	}
 	
@@ -107,7 +96,7 @@ public class UserTreeView {
 	 * @param parent
 	 * @param groupName
 	 */
-	public void addGroup(DefaultMutableTreeNode parent, TreeElement group) {
+	protected void addGroup(DefaultMutableTreeNode parent, TreeElement group) {
 		if (!checkIfEmpty(group.getID())) {
 			DefaultMutableTreeNode node = new DefaultMutableTreeNode(group);
 			checkIfGroup(parent);
@@ -121,7 +110,7 @@ public class UserTreeView {
 	 * @param parent
 	 * @param user
 	 */
-	public void addUser(DefaultMutableTreeNode parent, User user) {
+	protected void addUser(DefaultMutableTreeNode parent, User user) {
 		if (!checkIfEmpty(user.getID())) {
 			DefaultMutableTreeNode node = new DefaultMutableTreeNode(user);
 			checkIfGroup(parent);
@@ -153,7 +142,7 @@ public class UserTreeView {
 		model.reload();
 	}
 
-	public JTree getTree() {
+	protected JTree getTree() {
 		return userTree;
 	}
 	
@@ -164,9 +153,12 @@ public class UserTreeView {
 	private void checkIfGroup(DefaultMutableTreeNode parent) {
 		if (parent.getUserObject().toString().contains("*")) {
 			TreeElement group = (Group) parent.getUserObject();
-			StringBuilder sb = new StringBuilder(group.getID());
+			String newID = group.getID();
+			StringBuilder sb = new StringBuilder(newID);
 			sb.deleteCharAt(0);
-			parent.setUserObject(group);
+			
+			TreeElement newGroup = new Group(sb.toString());
+			parent.setUserObject(newGroup);
 		}
 	}
 	

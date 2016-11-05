@@ -3,6 +3,9 @@ package edu.cpp.cs.cs356.observers;
 import java.util.ArrayList;
 import java.util.List;
 
+import edu.cpp.cs.cs356.userinterface.NewsFeed;
+import edu.cpp.cs.cs356.userinterface.UserView;
+
 /**
  * 
  * @author tofum
@@ -21,6 +24,7 @@ public class User extends Visitable implements Visitor, TreeElement {
 	private List<String> newsFeed;
 	private int totalMessages;
 	private int totalPositiveMes;
+	private NewsFeed feed;
 
 	public User(String userID) {
 		this.userID = userID;
@@ -32,6 +36,14 @@ public class User extends Visitable implements Visitor, TreeElement {
 		totalPositiveMes = 0;
 	}
 	
+	public void setNewsFeed(NewsFeed feed) {
+		this.feed = feed;
+	}
+	
+	public void updateFeed() {
+		this.feed.update();
+	}
+	
 	@Override
 	public void accept(Visitor visitor) {
 		followers.add(visitor);
@@ -41,7 +53,9 @@ public class User extends Visitable implements Visitor, TreeElement {
 	@Override
 	public void notifyVisitors() {
 		for (Visitor vis : followers) {
+			User user = (User) vis;
 			vis.update(this);
+			user.updateFeed();
 		}
 	}
 	public void addFollowing(Visitor vis) {
@@ -61,6 +75,7 @@ public class User extends Visitable implements Visitor, TreeElement {
 				"NICE", "GOOD", "FINE", "HELLO", "GREAT"
 		};
 		this.tweet = tweet;
+		newsFeed.add(tweet);
 		totalMessages++;
 		
 		for (String pos : positiveMessages) {
@@ -95,7 +110,7 @@ public class User extends Visitable implements Visitor, TreeElement {
 			displayTweet(((User) vis).getTweet());
 		}
 	}
-	
+
 	public void displayTweet(String tweet) {
 		newsFeed.add(tweet);
 	}

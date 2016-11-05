@@ -45,8 +45,8 @@ public class PopupLabel extends JFrame {
 		add(panel);
 	}
 	
-	public PopupLabel(double value) {
-		super();
+	public PopupLabel(String name, double value) {
+		super(name);
 		setProperties();
 		
 		Double d = value * 100;
@@ -55,6 +55,16 @@ public class PopupLabel extends JFrame {
 		add(panel);
 	}
 	
+	public PopupLabel(String name, int value) {
+		super(name);
+		
+		setProperties();
+		Integer n = value;
+		label = new JLabel(n.toString());
+		panel.add(label);
+		add(panel);
+	}
+
 	private void setProperties() {
 		setSize(300,100);
 		setResizable(true);

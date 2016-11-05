@@ -5,7 +5,6 @@ import javax.swing.JList;
 import javax.swing.JPanel;
 
 import edu.cpp.cs.cs356.observers.User;
-import edu.cpp.cs.cs356.observers.Visitor;
 
 /**
  * 
@@ -18,7 +17,7 @@ public class NewsFeed {
 	private JPanel panel;
 	private JList list;
 	private DefaultListModel<String> listModel;
-	
+	private int size;
 	private User user;
 	
 	public NewsFeed(User user) {
@@ -36,11 +35,17 @@ public class NewsFeed {
 		panel.add(list);
 	}
 	
-	public void addTweet(String tweet) {
+	public void update() {
+		listModel.removeAllElements();
+		listModel.addElement("------ News Feed -------");
+		insertFeed();
+	}
+	
+	protected void addTweet(String tweet) {
 		listModel.addElement(tweet);
 	}
 	
-	public JPanel getPanel() {
+	protected JPanel getPanel() {
 		return panel;
 	}
 	
@@ -49,7 +54,7 @@ public class NewsFeed {
 	 * NewsFeed with updates from users that the specific user is following
 	 * if available.
 	 */
-	private void insertFeed() {
+	public void insertFeed() {
 		for (int i = user.getNewsFeed().size() - 1; i >= 0; i--) {
 			listModel.addElement(user.getNewsFeed().get(i));
 		}

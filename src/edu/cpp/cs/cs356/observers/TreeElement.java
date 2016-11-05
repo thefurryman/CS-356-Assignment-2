@@ -9,5 +9,5 @@ package edu.cpp.cs.cs356.observers;
 public interface TreeElement {
 
 	public String getID();
-	
+	public String toString();
 }

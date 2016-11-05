@@ -38,15 +38,16 @@ public class ListFollowing {
 		panel.add(list);
 	}
 	
-	public void addUser(User user) {
+	protected void addUser(User user) {
 		listModel.addElement(user.getID());
 	}
 	
-	public void addUser(String name) { 
+	/** Old method used for easy testing */
+	protected void addUser(String name) { 
 		listModel.addElement(name);
 	}
 	
-	public JPanel getPanel() {
+	protected JPanel getPanel() {
 		return panel;
 	}
 	
