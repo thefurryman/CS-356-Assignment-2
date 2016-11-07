@@ -23,6 +23,7 @@ public class User extends Visitable implements Visitor, TreeElement {
 	private int totalMessages;
 	private int totalPositiveMes;
 	private NewsFeed feed;
+	private final String [] POSITIVE_TERMS;
 
 	public User(String userID) {
 		this.userID = userID;
@@ -31,6 +32,9 @@ public class User extends Visitable implements Visitor, TreeElement {
 		newsFeed = new ArrayList<>();
 		totalMessages = 0;
 		totalPositiveMes = 0;
+		POSITIVE_TERMS = new String[] {
+				"NICE", "GOOD", "FINE", "HELLO", "GREAT"
+		};
 	}
 	
 	public void setNewsFeed(NewsFeed feed) {
@@ -67,20 +71,37 @@ public class User extends Visitable implements Visitor, TreeElement {
 	}
 	
 	public void postTweet(String tweet) {
-		String[] positiveMessages = {
-				"NICE", "GOOD", "FINE", "HELLO", "GREAT"
-		};
 		this.tweet = tweet;
 		newsFeed.add(tweet);
 		totalMessages++;
 		
-		for (String pos : positiveMessages) {
+		for (String pos : POSITIVE_TERMS) {
 			if (tweet.toUpperCase().contains(pos)) {
 				totalPositiveMes++;
 				break;
 			}
 		}
 		notifyVisitors();
+	}
+	
+	public int getPositiveMessagesCountNewsFeed() {
+		int positiveCount = 0;
+		for (int i = 0; i < newsFeed.size(); i++) {
+			if (containsPositiveMessage(newsFeed.get(i))) {
+				positiveCount++;
+			}
+		}
+			
+		return positiveCount;
+	}
+	
+	private boolean containsPositiveMessage(String message) {
+		for (String pos : POSITIVE_TERMS) {
+			if (message.toUpperCase().contains(pos)) {
+				return true;
+			}
+		}
+		return false;
 	}
 	
 	public int getTotalPositiveMessages() {

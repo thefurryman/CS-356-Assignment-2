@@ -118,7 +118,7 @@ public class UserTreeView {
 	}
 	
 	/**
-	 * Depricated, used for easy earlier testings.
+	 * DEPRICATED, used for easy earlier testings.
 	 * @param parent
 	 * @param userName
 	 */
