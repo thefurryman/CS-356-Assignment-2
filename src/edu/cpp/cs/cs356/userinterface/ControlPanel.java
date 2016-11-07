@@ -75,8 +75,6 @@ public class ControlPanel extends JFrame  {
 	
 	private void setUserTree() {
 		userTree = new UserTreeView();
-		userTree.getTree().setLayout(null);
-		userTree.getTree().setLocation(555, 555);		
 		components.add(userTree.getPanel());
 	}
 	
@@ -110,7 +108,6 @@ public class ControlPanel extends JFrame  {
 				}
 			}
 		});
-		addUserBtn.setLocation(999, 999);
 		components.add(addUserBtn);
 	}
 	
@@ -220,10 +217,9 @@ public class ControlPanel extends JFrame  {
 	}
 	
 	/**
-	 * Same as setPositivePercBtn() below, but just for seeing total messages in a group or
-	 * from a user
+	 * DEPRICATED, outputs the number of messages sent in the system(not just messages in user's newsfeed)
 	 */
-	private void setMessagesTotalBtn() {
+	private void setMessagesTotalBtn(int val) {
 		showMessagesTotalBtn = new JButton("Show Messages Total");
 		showMessagesTotalBtn.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
@@ -250,13 +246,41 @@ public class ControlPanel extends JFrame  {
 		components.add(showMessagesTotalBtn);
 	}
 	
-	/**
-	 * Starting at the last selected node (user/group), will determine if it is a user or group
+	/** Outputs the number of messages just in newsfeed */
+	private void setMessagesTotalBtn() {
+		showMessagesTotalBtn = new JButton("Show Messages Total");
+		showMessagesTotalBtn.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				DefaultMutableTreeNode node = userTree.getLastSelected();
+				if ((TreeElement) node.getUserObject() instanceof User) {
+					User user = (User) node.getUserObject();
+					new PopupLabel("Total Messages", user.getNewsFeed().size());
+				} else if ((TreeElement) node.getUserObject() instanceof Group) {
+					List<DefaultMutableTreeNode> list = Collections.list(node.depthFirstEnumeration());
+					int totalMes = 0;
+					User temp;
+					for (int i = 0; i < list.size(); i++) {
+						if (list.get(i).getUserObject() instanceof User) {
+							temp = (User) list.get(i).getUserObject();
+							totalMes += temp.getNewsFeed().size();
+						}
+					} 
+					new PopupLabel("Total Messages", totalMes);
+				} else {
+					new PopupLabel("error");
+				}
+			}
+		});
+		components.add(showMessagesTotalBtn);
+	}
+	
+	/** DEPRICATED
+	 *  Starting at the last selected node (user/group), will determine if it is a user or group
 	 *  and adjust percentage accordingly. Performs DFS on a group node and will calculate positive
 	 *  percentage on all users nodes and open a small window to display it. If selected node is a user,
 	 *  then will open small window with just that user's positive percentage
 	 */
-	private void setPositivePercBtn() {
+	private void setPositivePercBtn(int val) {
 		showPositivePercentageBtn = new JButton("Show Positive Percentage");
 		showPositivePercentageBtn.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
@@ -279,6 +303,47 @@ public class ControlPanel extends JFrame  {
 							temp = (User) list.get(i).getUserObject();
 							totalMes += temp.getTotalMessages();
 							totalPosMes += temp.getTotalPositiveMessages();
+						}
+					}
+					if (totalPosMes != 0) {
+						double posPerc = (double) totalPosMes / totalMes;
+						new PopupLabel("Positive Messages Percentage", posPerc);
+					} else {
+						new PopupLabel("Positive Messages Percentage", 0.0);
+					}
+				} else {
+					new PopupLabel("error");
+				}
+			}
+		});
+		components.add(showPositivePercentageBtn);
+	}
+	
+	/** Same algorithm as above but checks for positive messages in news feeds only not every
+	 * message ever inputed into the system without followers */
+	private void setPositivePercBtn() {
+		showPositivePercentageBtn = new JButton("Show Positive Percentage");
+		showPositivePercentageBtn.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				DefaultMutableTreeNode node = userTree.getLastSelected();
+				if ((TreeElement) node.getUserObject() instanceof User) {
+					User user = (User) node.getUserObject();
+					if (user.getNewsFeed().size() != 0) {
+						double posPerc = (double) user.getPositiveMessagesCountNewsFeed()/ user.getNewsFeed().size();
+						new PopupLabel("Positive Messages Percentage", posPerc);
+					} else {
+						new PopupLabel("Positive Messages Percentage", 0.0);
+					}
+				} else if ((TreeElement) node.getUserObject() instanceof Group) {
+					List<DefaultMutableTreeNode> list = Collections.list(node.depthFirstEnumeration());
+					int totalMes = 0;
+					int totalPosMes = 0;
+					User temp;
+					for (int i = 0; i < list.size(); i++) {
+						if ((TreeElement) list.get(i).getUserObject() instanceof User) {
+							temp = (User) list.get(i).getUserObject();
+							totalMes += temp.getNewsFeed().size();
+							totalPosMes += temp.getPositiveMessagesCountNewsFeed();
 						}
 					}
 					if (totalPosMes != 0) {
